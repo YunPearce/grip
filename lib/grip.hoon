@@ -71,7 +71,9 @@
       |=  [=mark =vase]
       ^-  (quip card _this)
       |^
-      ?+  mark  [inner-cards this]
+      ?+  mark 
+        =^  cards  inner  (on-poke:ag mark vase)
+          [cards this]
       %grip
         ?>  =(src.bowl our.bowl)
         =/  pok  !<(action vase)
@@ -88,21 +90,28 @@
           `this(auto-enabled +.pok)
         ==
       %handle-http-request
-      ?>  =(src.bowl our.bowl)
+      ?>  =(src.bowl our.bowl) 
       =/  req  !<([eyre-id=@ta =inbound-request:eyre] vase)
       =/  site  (parse-request-line url.request.inbound-request.req)
       =+  send=(cury simple-payload eyre-id.req)
-      =*  dump   [inner-cards this]
-        ?+    method.request.inbound-request.req  dump
+        ?+    method.request.inbound-request.req  
+        =^  cards  inner  (on-poke:ag mark vase)
+        [cards this]
           ::
             %'GET'
-            ?.  =(ui-path `(list @ta)`(swag [0 2] site))  dump
+            ?.  =(ui-path `(list @ta)`(swag [0 2] site))  
+            =^  cards  inner  (on-poke:ag mark vase)
+              [cards this]
               ::  fallback: forward poke to wrapped agent core
             =/  url       (to-tape-url (welp ui-path /new-ticket))
             =/  sett-url  (to-tape-url (welp site /settings))
             =.  site      (oust [0 2] site)  :: now we know this isn't ~
-            ?~  site  dump
-            ?+  site  dump
+            ?~  site  
+              =^  cards  inner  (on-poke:ag mark vase)
+                [cards this]
+            ?+  site  
+              =^  cards  inner  (on-poke:ag mark vase)
+                [cards this]
             ::
             [%report ~]
             :_  this
@@ -116,11 +125,17 @@
             ==
           ::
            %'POST'
-            ?.  =(ui-path (snip site))  dump
+            ?.  =(ui-path (snip site))  
+              =^  cards  inner  (on-poke:ag mark vase)
+                [cards this]
             =/  back-url=tape  +:(to-tape-url (welp :~(~...) +.ui-path))
             =.  site  (oust [0 2] site)
-            ?~  site  dump                     
-            ?+  site  dump
+            ?~  site  
+              =^  cards  inner  (on-poke:ag mark vase)
+                [cards this]                
+            ?+  site  
+              =^  cards  inner  (on-poke:ag mark vase)
+                [cards this]
             ::
             [%new-ticket ~]
               ?~  body.request.inbound-request.req
@@ -150,10 +165,6 @@
       |=  site=path
       ^-  tape
       (sa:dejs:format (path:enjs:format site))
-      ::
-      ++  inner-cards
-      =^  cards  inner  (on-poke:ag mark vase)
-      cards
       --
     ::
     ++  on-watch
@@ -238,7 +249,6 @@
 ++  send-to-pharos
   |=  [=ship =ticket]
   ^-  card:agent:gall
-  ::~&  ticket
   :*  %pass
       /pharos
       %agent
